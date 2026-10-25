@@ -1,0 +1,113 @@
+{
+  "protocol_id": "FS-2.1",
+  "title": "Feature-selection protocol, binary target, amendment 1 (development data only)",
+  "frozen_on": "2026-10-24",
+  "supersedes": "FS-1 (identical procedure, three researcher-defined trust levels). FS-2 changes only the target: the datasets' own binary label 'malicious' (0 = benign, 1 = malicious), because trust levels are now derived from the model's risk score in the decision layer.",
+  "approved_by": "Student (Cathrene Mampane), 2026-10-24",
+  "rationale_document": "docs/D01_feature_selection_protocol.md",
+  "test_data_used": false,
+  "random_state": 42,
+  "class_codes": {
+    "benign": 0,
+    "malicious": 1
+  },
+  "metadata_columns_never_features": [
+    "row_id",
+    "row_multiplicity",
+    "scenario",
+    "label",
+    "detailed_label",
+    "attack_type",
+    "malicious",
+    "fold",
+    "scenario_group",
+    "fold_A_rowlevel",
+    "fold_B_partial_grouped"
+  ],
+  "datasets": {
+    "iot23": {
+      "cv_folds_file": "data/processed/iot23_cv_folds.csv",
+      "fold_column": "fold_B_partial_grouped",
+      "selection_rows": "whole_scenario",
+      "selection_rows_meaning": "validation rows from scenarios wholly unseen in that fold's training data (scenario_group == 'whole_scenario')",
+      "carve_out_scenario": "CTU-IoT-Malware-Capture-35-1",
+      "rarity_populations": [
+        "all_development",
+        "non_carveout_development"
+      ],
+      "count_rule": "all_filtered_variables"
+    },
+    "rt_iot2022": {
+      "cv_folds_file": "data/processed/rt_iot2022_cv_folds.csv",
+      "fold_column": "fold",
+      "selection_rows": "all",
+      "selection_rows_meaning": "all validation rows (no scenario/session/device identifier exists)",
+      "carve_out_scenario": null,
+      "rarity_populations": [
+        "all_development"
+      ],
+      "count_rule": "one_standard_error"
+    }
+  },
+  "selection_criterion": {
+    "metric": "macro_F1 over the two dataset classes benign/malicious (labels 0,1; zero_division=0)",
+    "computed_on": "selection_rows of each validation fold",
+    "model_combination": "per-fold mean of the Random Forest and XGBoost measuring instruments",
+    "reported_but_never_used_for_decisions": [
+      "macro_F1 on all validation rows",
+      "macro_F1 on carve-out (Capture-35-1) validation rows",
+      "per-class F1 (benign, malicious) on selection rows",
+      "each instrument's score separately"
+    ]
+  },
+  "unit_of_selection": "original variable (a categorical variable's one-hot columns are kept or removed together)",
+  "filters_unsupervised_fit_on_all_development_rows": {
+    "constant_numeric": "drop numeric variables with min == max",
+    "variance_threshold_onehot": 0.01,
+    "rare_level_rule": "a categorical level becomes a dummy column if p(1-p) > 0.01 in ANY listed rarity population; levels failing all populations are dropped (rows with them get all-zero dummies); a categorical variable with no surviving level is removed",
+    "correlation": {
+      "method": "spearman",
+      "threshold": 0.9,
+      "tie_break": "of the most correlated pair, drop the variable with the larger mean absolute correlation with all remaining variables (findCorrelation logic, Kuhn & Johnson); repeat until no pair exceeds the threshold",
+      "exclude_variables": [
+        "id_resp_p"
+      ],
+      "exclude_reason": "destination port is a nominal identifier coded as an integer; rank correlation with it is not meaningful"
+    }
+  },
+  "ranking": {
+    "method": "grouped permutation importance (Gregorutti et al., 2015): all columns of a variable are permuted together with one shared row permutation",
+    "score": "macro_F1 on selection rows of the held-out fold",
+    "repeats": 10,
+    "importance": "baseline score minus mean permuted score (unclipped)",
+    "instruments": {
+      "random_forest": {
+        "n_estimators": 200,
+        "class_weight": "balanced"
+      },
+      "xgboost": {
+        "n_estimators": 200,
+        "tree_method": "hist",
+        "eval_metric": "logloss",
+        "sample_weight": "balanced"
+      }
+    },
+    "combination": "mean importance across folds per instrument, then mean of the two instruments",
+    "nesting": "for each outer fold f, a ranking R_f is computed using ONLY folds other than f (train on folds not in {f, g}, measure importance on fold g, for every g != f). The feature-count curve for fold f uses R_f, so no fold's own labels influence the ranking it is evaluated with. The final ranking R uses all folds (train on folds != g, measure on g, for every g)."
+  },
+  "count_selection": {
+    "candidate_counts": "every count if <= 10 variables survive the filters, otherwise about 10 evenly spaced counts always including the full set",
+    "curve": "for each count n and outer fold f: train both instruments on folds != f using the top-n variables of R_f; score on the selection rows of fold f",
+    "rule": "one-standard-error rule: SE = sample SD (ddof=1) of the best count's per-fold scores / sqrt(K); select the SMALLEST count whose mean is >= best mean - SE",
+    "final_variables": "top-n of the final ranking R"
+  },
+  "diagnostics_not_used_for_decisions": [
+    "Nogueira et al. (2018) stability of the top-n sets across the K nested rankings",
+    "pairwise Kendall tau between nested rankings",
+    "mutual-information ranking of the filtered variables (stratified sample of at most 200000 development rows) and its Spearman correlation with the permutation ranking",
+    "rank and per-fold importance of id_resp_p (destination-port ablation is a later, separate predeclared step)"
+  ],
+  "mi_sample_rows": 200000,
+  "amended_on": "2026-10-24",
+  "amendment": "FS-2 applied as frozen selected ONE IoT-23 variable (proto, two 0/1 columns): the one-standard-error rule was uninformative because the between-fold standard error of the best count (0.176) was about half its mean (0.376) and the nested rankings disagreed (Nogueira stability -0.10; Kendall tau 0.02-0.13). A model on a single two-level variable can output at most three distinct risk scores, so it cannot provide the graded risk score the decision layer needs to form a Suspicious band. FS-2.1 therefore keeps ALL variables that survive the unsupervised filters for IoT-23 (no performance-based count selection); the count curve is still computed and reported. RT-IoT2022 is unchanged (one-standard-error rule; stability 0.86). Decided on development results only; no test data used."
+}
