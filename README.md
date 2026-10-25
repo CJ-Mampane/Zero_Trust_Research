@@ -1,116 +1,127 @@
-\# Zero-Trust IoT Research
 
+# Zero-Trust IoT Research
 
+## Overview
 
-\## Overview
+This repository contains the Python implementation of my BSc Honours in Computer Science research project at the University of Fort Hare.
 
+**Research title:** Machine Learning and Risk-Based Trust Evaluation for Continuous Authentication in IoT Zero-Trust Systems
 
+## Research Focus
 
-This repository contains the Python implementation for my BSc Honours Computer Science research project at the University of Fort Hare.
+This project investigates risk-based trust evaluation for Internet of Things (IoT) network traffic within a Zero-Trust environment. It explores how machine-learning models can identify potentially malicious network activity and estimate risk to support trust decisions during continuous authentication.
 
+The research focuses on evaluating model performance, examining generalisation to different datasets, and investigating how risk assessments can inform trust decisions over time.
 
+## Implementation Pipeline
 
-\*\*Research title:\*\* Machine Learning and Risk-Based Trust Evaluation for Continuous Authentication in IoT Zero-Trust Systems.
+The implementation is organised into numbered Python scripts covering the following stages:
 
+1. **Data inventory and loading** — inspecting and loading network traffic datasets.
+2. **Data cleaning and preparation** — preparing data for analysis and modelling.
+3. **Data splitting and validation design** — establishing training, testing, and validation procedures.
+4. **Feature selection and exploratory data analysis** — examining the data and selecting relevant features.
+5. **Generalisation diagnostics** — investigating model behaviour across data sources and evaluation settings.
+6. **Model tuning and risk modelling** — developing and evaluating risk estimation models.
+7. **Trust decision layer** — translating risk estimates into trust-related decisions.
+8. **Trust lifecycle evaluation** — examining changes in trust status over time.
+9. **Final evaluation** — assessing the overall performance of the proposed approach.
 
+The implementation and evaluation procedures may be refined as the research progresses.
 
-\## Research focus
+## Technologies
 
+- **Programming language:** Python
+- **Data processing:** pandas, NumPy
+- **Machine learning:** scikit-learn, XGBoost
+- **Visualisation:** Matplotlib
+- **Model explainability:** SHAP
 
+## Repository Structure
 
-The project investigates risk-based trust evaluation for IoT network traffic in a Zero-Trust environment. It explores machine-learning models for identifying malicious traffic and using risk scores to support trust decisions.
+```text
+Zero_Trust_Research/
+├── config/
+│   └── feature_selection_protocol.json
+├── docs/
+│   └── D01_feature_selection_protocol.md
+├── src/
+│   ├── 0_raw_data_inventory.py
+│   ├── 1_data_loading.py
+│   ├── 2_data_cleaning.py
+│   ├── 3_train_test_split.py
+│   ├── 4_validation_design.py
+│   ├── 5_feature_selection.py
+│   ├── 5b_generalisation_diagnostics.py
+│   ├── 6_eda.py
+│   ├── 7_tuning.py
+│   ├── 8_risk_models_and_hybrid.py
+│   ├── 9_decision_layer.py
+│   ├── 10_trust_lifecycle.py
+│   └── 11_final_evaluation.py
+├── .gitignore
+├── README.md
+└── requirements_lock.txt
+```
 
+## Setup
 
+### Prerequisites
 
-\## Implementation
+- Python 3.12
+- pip
 
+### Installation
 
+1. Clone the repository:
 
-The source code is organised into numbered scripts covering:
+   ```bash
+   git clone https://github.com/CJ-Mampane/Zero_Trust_Research.git
+   cd Zero_Trust_Research
+   ```
 
+2. Create a virtual environment:
 
+   **Windows:**
+   ```powershell
+   py -3.12 -m venv .venv
+   .venv\Scripts\python.exe -m pip install --upgrade pip
+   ```
 
-\- Raw data inventory and loading
+   **Linux/macOS:**
+   ```bash
+   python3.12 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install --upgrade pip
+   ```
 
-\- Data cleaning and preparation
+3. Install the dependencies:
 
-\- Training and test split design
+   **Windows:**
+   ```powershell
+   .venv\Scripts\python.exe -m pip install -r requirements_lock.txt
+   ```
 
-\- Validation and generalisation diagnostics
+   **Linux/macOS:**
+   ```bash
+   python -m pip install -r requirements_lock.txt
+   ```
 
-\- Feature selection and exploratory data analysis
+Individual scripts may require additional configuration or dataset paths before they can be executed. Follow any relevant instructions in the source code and documentation.
 
-\- Model tuning and risk modelling
+## Data and Reproducibility
 
-\- Trust decision logic
+Datasets, trained models, generated results, and local development environments are excluded from this repository.
 
-\- Trust lifecycle evaluation and final evaluation
+To reproduce the experiments, obtain the required datasets from their original sources, review the applicable licences and usage conditions, and configure the relevant paths and settings. Follow the documented data preparation, splitting, validation, and evaluation procedures when reproducing results.
 
+## Research Status
 
+This repository represents an ongoing academic research project. The implementation, experimental procedures, and evaluation may change as the research develops. Results and conclusions should be interpreted in the context of the current implementation and documented experimental design.
 
-\## Technologies
+## Author
 
-
-
-\- Python
-
-\- pandas and NumPy
-
-\- scikit-learn
-
-\- XGBoost
-
-\- Matplotlib
-
-\- SHAP
-
-
-
-\## Repository structure
-
-
-
-\- `config/` — configuration files
-
-\- `docs/` — research documentation
-
-\- `src/` — Python source code
-
-\- `requirements\_lock.txt` — pinned Python dependencies
-
-
-
-\## Setup
-
-
-
-Use Python 3.12. Create a virtual environment and install the dependencies listed in `requirements\_lock.txt`.
-
-
-
-\## Research status
-
-
-
-This is an ongoing academic research project. Methods, implementation, and evaluation may change as the research progresses.
-
-
-
-\## Data and reproducibility
-
-
-
-Datasets, trained models, and generated results are excluded from this repository. Obtain datasets from their original sources and check their licensing and usage conditions before use.
-
-
-
-\## Author
-
-
-
-Cathrene Jabulile Mampane  
-
+**Cathrene Jabulile Mampane**  
 BSc Honours in Computer Science  
-
-Faculty of Computational Sciences, University of Fort Hare
-
+Faculty of Computational Sciences  
+University of Fort Hare, South Africa
